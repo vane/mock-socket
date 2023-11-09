@@ -23,7 +23,7 @@ class TrafficData:
 
     def in_packet(self, input):
         print('TrafficData.in_packet')
-        if self.current_packet and self.current_packet.has_output:
+        if self.current_packet:
             self.packets.append(self.current_packet)
             print('in_packet->end')
         self.current_packet = TrafficPacket()
@@ -33,7 +33,7 @@ class TrafficData:
 
     def out_packet(self, output):
         print('TrafficData.out_packet')
-        if self.current_packet and self.current_packet.has_input:
+        if self.current_packet:
             self.packets.append(self.current_packet)
             print('out_packet->end')
         self.current_packet = TrafficPacket()
@@ -52,9 +52,9 @@ class TrafficDump:
                 pickle.dump(packet, b)
                 size = f'{b.getbuffer().nbytes:010d}'
                 f.write(size.encode('utf-8'))
-                print('TrafficDump.dump', size)
                 b.seek(0)
                 f.write(b.read())
+                print('TrafficDump.dump', size, 'in', packet.has_input, 'out', packet.has_output)
         print('TrafficDump.dump->end')
 
 

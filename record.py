@@ -32,7 +32,7 @@ class Proxy:
                     if not data:
                         break
                     print('Proxy.outgoing_client_socket->data', data)
-                    self.in_queue.put_nowait(data)
+                    self.in_queue.put(data)
                     self.data.in_packet(data)
                 except:
                     print('Proxy.outgoing_client_socket->error')
@@ -41,14 +41,14 @@ class Proxy:
         print('Proxy.start_client_socket->end')
 
     def start_queue_outgoing(self, s: socket.socket):
-        print('Proxy.start_client_outgoing->start')
+        print('Proxy.start_queue_outgoing->start')
         self.out_socket = s
         while self.connected:
             outgoing = self.out_queue.get()
-            print('Proxy.start_client_outgoing', outgoing)
+            print('Proxy.start_queue_outgoing', outgoing)
             if self.connected:
                 s.sendall(outgoing)
-        print('Proxy.start_client_outgoing->stop')
+        print('Proxy.start_queue_outgoing->stop')
 
     def start_queue_incoming(self, s: socket.socket):
         print('Proxy.start_client_incoming->start')
@@ -95,7 +95,7 @@ def start_server(host='127.0.0.1', port=3307):
                             break
                         print('start_server->data', data)
                         p.data.out_packet(data)
-                        p.out_queue.put_nowait(data)
+                        p.out_queue.put(data)
                     p.disconnect_incoming()
                     print(f'Connection closed from {addr}')
                     print('Recorded packets', len(p.data.packets))
