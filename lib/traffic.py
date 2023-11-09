@@ -4,6 +4,8 @@ import io
 import pickle
 from typing import Optional
 
+version = b'ver:0.0.1:'
+
 
 class TrafficPacket:
     def __init__(self):
@@ -44,6 +46,7 @@ class TrafficDump:
     def dump_packets(packets: list[TrafficPacket], fname='dump.bin'):
         print('TrafficDump.dump->start')
         with open(fname, 'wb+') as f:
+            f.write(version)
             for packet in packets:
                 b = io.BytesIO()
                 pickle.dump(packet, b)
@@ -61,6 +64,7 @@ class TrafficLoad:
         print('TrafficLoad.load_packets->start')
         tf: TrafficData = TrafficData()
         with open(fname, 'rb') as f:
+            f.read(len(version))
             val = f.read(10)
             while val:
                 b = io.BytesIO()
