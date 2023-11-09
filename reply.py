@@ -36,18 +36,19 @@ class ReplyProxy:
             outgoing = self.out_queue.get()
             print('ReplyProxy.start_queue_outgoing', outgoing)
             self.index += 1
-            self.try_send()
+            if self.index < len(self.data.packets):
+                self.try_send()
         print('ReplyProxy.start_queue_outgoing->stop')
 
     def try_send(self):
-        if not self.connected:
-            return
         print('ReplyProxy.try_send->start', self.index)
         while self.data.packets[self.index].has_input:
             packets = self.data.packets[self.index]
             for packet in packets.input:
                 self.in_queue.put(packet)
             self.index += 1
+            if self.index == len(self.data.packets):
+                break
         print('ReplyProxy.try_send->end', self.index)
 
     def start_queue_incoming(self, s: socket.socket):
