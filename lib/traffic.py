@@ -64,7 +64,8 @@ class TrafficLoad:
         print('TrafficLoad.load_packets->start')
         tf: TrafficData = TrafficData()
         with open(fname, 'rb') as f:
-            f.read(len(version))
+            ver = f.read(len(version))
+            print('version', ver.split(b':')[1])
             val = f.read(10)
             while val:
                 b = io.BytesIO()
