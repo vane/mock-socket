@@ -30,4 +30,4 @@ from `test/test-mysql.py` and replies with traffic from `dump.bin`
 
 ### TODO
 - add ability to specify configuration file
-- test on different sockets instead of only on mysql connection
+- test on different sockets instead of only mysql socket
