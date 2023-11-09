@@ -4,6 +4,7 @@ import socket
 import queue
 from typing import Optional
 from threading import Thread
+from lib.traffic import TrafficData, TrafficDump
 
 
 class Proxy:
@@ -15,6 +16,7 @@ class Proxy:
         self.out_thread: Optional[Thread] = None
         self.out_socket: Optional[socket.socket] = None
         self.in_socket: Optional[socket.socket] = None
+        self.data = TrafficData()
 
     def start_client_socket(self, host='127.0.0.1', port=3306):
         print('Proxy.start_client->start')
@@ -29,6 +31,7 @@ class Proxy:
                         break
                     print('Proxy.start_client->data', data)
                     self.in_queue.put(data)
+                    self.data.in_packet(data)
                 except:
                     print('Proxy.start_client->error')
                     self.connected = False
@@ -71,8 +74,6 @@ class Proxy:
         self.out_socket.close()
 
 
-
-
 def start_server(host='127.0.0.1', port=3307):
     print('start_server', host, port)
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
@@ -91,13 +92,15 @@ def start_server(host='127.0.0.1', port=3307):
                         if not data:
                             break
                         print('start_server->data', data)
+                        p.data.out_packet(data)
                         p.out_queue.put_nowait(data)
                     p.disconnect_incoming()
                     print(f'Connection closed from {addr}')
+                    print('Recorded packets', len(p.data.packets))
+                    TrafficDump.dump_packets(packets=p.data.packets)
         finally:
             print('stop_server', host, port)
             s.close()
-
 
 
 if __name__ == '__main__':
