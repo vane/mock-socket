@@ -7,7 +7,7 @@ from threading import Thread
 from lib.traffic import TrafficLoad, TrafficData
 
 
-class ReplyProxy:
+class ReplayProxy:
     def __init__(self, data: TrafficData):
         self.data: TrafficData = data
         self.index = 0
@@ -31,17 +31,17 @@ class ReplyProxy:
         self.try_send()
 
     def start_queue_outgoing(self):
-        print('ReplyProxy.start_queue_outgoing->start')
+        print('ReplayProxy.start_queue_outgoing->start')
         while self.connected:
             outgoing = self.out_queue.get()
-            print('ReplyProxy.start_queue_outgoing', outgoing)
+            print('ReplayProxy.start_queue_outgoing', outgoing)
             self.index += 1
             if self.index < len(self.data.packets):
                 self.try_send()
-        print('ReplyProxy.start_queue_outgoing->stop')
+        print('ReplayProxy.start_queue_outgoing->stop')
 
     def try_send(self):
-        print('ReplyProxy.try_send->start', self.index)
+        print('ReplayProxy.try_send->start', self.index)
         while self.data.packets[self.index].has_input:
             packets = self.data.packets[self.index]
             for packet in packets.input:
@@ -49,16 +49,16 @@ class ReplyProxy:
             self.index += 1
             if self.index == len(self.data.packets):
                 break
-        print('ReplyProxy.try_send->end', self.index)
+        print('ReplayProxy.try_send->end', self.index)
 
     def start_queue_incoming(self, s: socket.socket):
-        print('ReplyProxy.start_client_incoming->start')
+        print('ReplayProxy.start_client_incoming->start')
         self.in_socket = s
         while self.connected:
             incoming = self.in_queue.get()
-            print('ReplyProxy.start_client_incoming', self.index)
+            print('ReplayProxy.start_client_incoming', self.index)
             s.sendall(incoming)
-        print('ReplyProxy.start_client_incoming->stop')
+        print('ReplayProxy.start_client_incoming->stop')
 
 
 def start_server(tfdata: TrafficData, host='127.0.0.1', port=3307):
@@ -72,7 +72,7 @@ def start_server(tfdata: TrafficData, host='127.0.0.1', port=3307):
                 conn, addr = s.accept()
                 with conn:
                     print(f'Connection new from {addr}')
-                    p: ReplyProxy = ReplyProxy(tfdata)
+                    p: ReplayProxy = ReplayProxy(tfdata)
                     p.start(conn)
                     while True:
                         data = conn.recv(1024)
