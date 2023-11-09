@@ -76,5 +76,5 @@ class TrafficLoad:
                 print(val, packet)
                 val = f.read(10)
                 tf.packets.append(packet)
-        print('TrafficLoad.load_packets->end')
+        print('TrafficLoad.load_packets->end', len(tf.packets))
         return tf

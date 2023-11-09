@@ -11,32 +11,34 @@ class Proxy:
     def __init__(self):
         self.connected = True
         self.in_queue = queue.Queue()
-        self.out_queue = queue.Queue()
         self.in_thread: Optional[Thread] = None
+        self.in_socket: Optional[socket.socket] = None
+
+        self.out_queue = queue.Queue()
         self.out_thread: Optional[Thread] = None
         self.out_socket: Optional[socket.socket] = None
-        self.in_socket: Optional[socket.socket] = None
+
         self.data = TrafficData()
 
-    def start_client_socket(self, host='127.0.0.1', port=3306):
+    def outgoing_client_socket(self, host='127.0.0.1', port=3306):
         print('Proxy.start_client->start')
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.connect((host, port))
-            othread = Thread(target=self.start_queue_outgoing, args=(s, ))
-            othread.start()
+            self.out_thread = Thread(target=self.start_queue_outgoing, args=(s, ))
+            self.out_thread.start()
             while self.connected:
                 try:
                     data = s.recv(1024)
                     if not data:
                         break
-                    print('Proxy.start_client->data', data)
-                    self.in_queue.put(data)
+                    print('Proxy.outgoing_client_socket->data', data)
+                    self.in_queue.put_nowait(data)
                     self.data.in_packet(data)
                 except:
-                    print('Proxy.start_client->error')
+                    print('Proxy.outgoing_client_socket->error')
                     self.connected = False
                     break
-        print('Proxy.start_client->end')
+        print('Proxy.start_client_socket->end')
 
     def start_queue_outgoing(self, s: socket.socket):
         print('Proxy.start_client_outgoing->start')
@@ -58,7 +60,7 @@ class Proxy:
         print('Proxy.start_client_incoming->stop')
 
     def start(self, conn: socket.socket):
-        self.out_thread = Thread(target=self.start_client_socket)
+        self.out_thread = Thread(target=self.outgoing_client_socket)
         self.out_thread.start()
         self.in_thread = Thread(target=self.start_queue_incoming, args=(conn, ))
         self.in_thread.start()
